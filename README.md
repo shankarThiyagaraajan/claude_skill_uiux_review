@@ -6,6 +6,7 @@
   <a href="#-install"><img alt="Agent Skill" src="https://img.shields.io/badge/Agent%20Skill-SKILL.md-7c3aed"></a>
   <a href="#claude-code"><img alt="Claude Code plugin" src="https://img.shields.io/badge/Claude%20Code-plugin-d97757"></a>
   <img alt="Python 3.9+" src="https://img.shields.io/badge/python-3.9%2B-3776ab">
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-22c55e"></a>
   <img alt="Surfaces" src="https://img.shields.io/badge/reviews-Web%20%C2%B7%20TUI%20%C2%B7%20CLI-0ea5e9">
 </p>
 
@@ -323,5 +324,9 @@ claude plugin validate .                                          # plugin manif
 ```
 
 Read [ARCHITECTURE.md](ARCHITECTURE.md) first. It covers how the scripts connect through files and the rules `build_report.py` enforces.
+
+## 📄 License
+
+[MIT](LICENSE) © 2026 Shankar Thiyagaraajan
 
 <p align="center"><sub>Built for people who ship things other people have to use.</sub></p>
