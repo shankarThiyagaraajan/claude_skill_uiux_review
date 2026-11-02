@@ -1,6 +1,22 @@
 # TUI checklist — what to check and how
 
-Capture first with `scripts/capture_tui.py` at 80×24, 120×40 and 200×60 (add the size the real user runs at if the spec says). Textual apps give SVG screenshots through the pilot; anything else gives a text dump of the screen from a pty. Judge from those.
+Capture first with `scripts/capture_tui.py` at 80×24, 120×40 and 200×60. Add the size the real user runs at if the spec says.
+
+- **Textual apps:** `textual pkg.module:AppClass` gives SVG plus text screenshots through Textual's headless test driver (the "pilot"). Run it from the project root so the module imports.
+- **Any other TUI** (curses, Bubble Tea, Ratatui…): `pty "<command>"` gives a text dump of the screen from a pseudo-terminal. Add `--png` for an image; that needs Pillow in the same Python. Pty captures have no colour, so put colour and contrast under *Not checked* unless you have a colour capture.
+
+Judge from those. The manifest helps you spot cut-off text. Confirm each on the dump:
+
+These are **counts**. Find the rows yourself in the `.txt` dump.
+
+- `edge_lines`: how many rows have text ending at the right edge, so it is likely cut.
+  - **pty mode** counts text within one column of the edge, because many curses apps stop one column short. Right-aligned status bars with one cell of padding can show up as false positives.
+  - **Textual mode** counts the last column only. Use `wide_widgets` there.
+  - A trailing border or scrollbar character is ignored.
+- `ellipsis_lines`: how many rows contain `…` or `...`.
+- `wide_widgets` (Textual only): widgets whose content is wider than their box (`why`: `nowrap`, `offscreen` or `scroll`).
+
+Environment variables that look like secrets are removed from pty runs. Their names are listed in `env_dropped`; pass `--keep-env NAME` or `--inherit-env` if the app needs one.
 
 ## Fit at each size
 

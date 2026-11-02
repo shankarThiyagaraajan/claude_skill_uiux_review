@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+# review outputs if the skill is run from here
+captures/
+captures-tui/
+cli-runs/
+annotated/

@@ -1,17 +1,27 @@
 # Web checklist — what to check and how
 
-Read the `captures/manifest.json` first: it already answers the automated items. The rest you judge from the captures and from walking the jobs. Each item says how to get the evidence.
+Run `capture_web.py --check` before the first capture. It shows which browser, axe and Pillow are available. Then read `captures/manifest.json`: its `summary` block answers the automated items first. The rest you judge from the captures and from walking the jobs. Each item says how to get the evidence.
+
+A measurement is not a conclusion. Confirm it on the capture before calling anything P0/P1, and quote the number.
+
+## Before trusting the manifest
+
+- `summary.axe_skipped` > 0 means axe did **not** run on those captures. That is not "no violations": put the automated accessibility baseline under *Not checked*, and don't score Accessibility baseline as good. The same goes for `axe_errors`, `tab_walk_errors`, `evaluate_errors` and `screenshot_errors`.
+- `summary.errors` counts captures that failed, including navigation failures (`error: "navigation: …"`). Those routes weren't seen.
+- `wait_timed_out: true` (count in `with_wait_timeouts`): the page never settled within `--timeout`, or the `--wait-for` selector never appeared. `load_ms` is then null. The default wait is `load`; use `--wait networkidle` only for static sites, and `--wait-for <selector>` to wait for the main content.
+- `third_party`: origins the page called besides the app. Payment, email or analytics origins mean the app talks to real services. If you can't confirm they're sandboxed, re-run with `--block-third-party` and walk read-only. `blocked` lists what was stopped.
+- `masked`: the selectors blacked out in the PNG (password and card fields by default, plus `--mask`). URLs are stored without query strings (`--keep-query` to keep them), and console text has tokens and keys redacted.
 
 ## From the manifest (automated)
 
-- `overflow` true at any width → Layout and fit, usually P1 at 360 (content hidden) or P2 at larger widths. Evidence: the capture and the `scroll_width` vs `client_width` numbers.
-- `console_errors` → Crashes and dead ends if the UI is affected; otherwise note under Not checked / arch-review.
-- `failed_requests` (4xx/5xx, blocked) → States and feedback: did the UI say anything? A silent failed request with a normal-looking screen is misleading state (P0).
+- `overflow.overflow` true at any width → Layout and fit, usually P1 at 360 (content hidden) or P2 at larger widths. Evidence: the capture and the `scroll_width` vs `client_width` numbers.
+- `console_errors` → Crashes and dead ends if the UI is affected. Otherwise file one P3 "console errors with no visible effect" for the developers, or add them to a related finding's `related`.
+- `failed_requests` (4xx/5xx) → States and feedback. First sort them: same-origin API calls the screen depends on, vs. assets, favicon, analytics, dev-server sockets and expected auth probes. A failed request is misleading state (P0) only when the capture shows the missing data while the screen looks complete. Other failures are P3 or a note.
 - `axe.violations` → Accessibility baseline. `serious`/`critical` impact with a user-facing effect is P1; the rest P2. Quote the rule id and the first node selector.
 - `small_targets` → Touch and small screens. Only count interactive elements the user needs on the small sizes.
-- `tab_walk` → Navigation and keys. Look for: order jumping around the page, elements that never receive focus, `focus_visible: false` on any step, a walk that never reaches the primary action.
+- `tab_walk` → Navigation and keys. Look for: order jumping around the page, elements that never receive focus, `focus_visible: false` on any step (the summary list is `tab_walk.invisible_focus`), a walk that never reaches the primary action. The walk stops after `--tab-steps` (default 30), so on long pages "never reached" may only mean the walk ran out of steps. Check the step count before filing it.
 - `scheme: dark` captures → compare with light: unreadable text, invisible borders, status colours that changed meaning.
-- `zoom200` capture → Layout and fit (WCAG 1.4.4 / 1.4.10): does the layout reflow or get clipped?
+- `zoom200` capture (640 px wide, the same as a 1280 window at 200% zoom) → Layout and fit, WCAG 1.4.4: does the layout reflow or get clipped? For WCAG 1.4.10 (reflow at 320 CSS px), the 360 capture is the nearest; say so if you rely on it.
 - `reduced_motion` capture → does anything still animate or auto-advance?
 
 ## Information architecture

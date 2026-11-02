@@ -5,7 +5,7 @@
       --box 20,700,160,760 "Place order enabled too early" --out annotated/orders__360__light__do.png
 
   python annotate.py shot.png --box x1,y1,x2,y2 "label" [--box … "label"]... [--arrow x1,y1,x2,y2] [--crop x1,y1,x2,y2]
-      [--out path] [--color "#e5484d"] [--scale 1.0] [--legend]
+      [--out path] [--color "#e5484d"] [--scale 1.0] [--no-legend]
 
 Each --box gets a number badge at its top-left and the label in a legend strip under the image
 (default) or next to the box (--no-legend). --crop cuts the capture to the region of interest first

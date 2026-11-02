@@ -1,6 +1,30 @@
 # State matrix — the grid every walk fills in
 
-One grid per main job. Rows are states, columns are sizes (web: 360 / 768 / 1440 / 1920; TUI: 80×24 / 120×40 / 200×60; CLI: TTY / piped). Each cell is one of: `ok`, `finding UX-###`, or `not checked (reason)`. Empty cells are not allowed — an untested cell is `not checked`. The matrix goes into `review.json` under `jobs[].matrix` and the report renders it.
+One grid per main job. Rows are states; columns are sizes:
+
+- web: 360 / 768 / 1440 / 1920
+- TUI: 80×24 / 120×40 / 200×60
+- CLI: TTY / piped
+
+The matrix goes into `review.json` under `jobs[].matrix`, and the report renders it.
+
+**Each cell is exactly one of:**
+
+| Cell | Means |
+|---|---|
+| `ok:<evidence>` | Tested and fine. The evidence is the capture path or the step you ran, e.g. `ok:captures/orders__360__light__empty.png`. A bare `ok` is rejected by the builder |
+| `UX-###` | One or more finding IDs, e.g. `UX-004` or `UX-004, UX-009` |
+| `n/a:<reason>` | The state can't occur for this job, e.g. `n/a: placing an order is instant` |
+| `not checked:<reason>` | You didn't test it, and why |
+
+Empty cells are not allowed.
+
+**Which states get a column per size.**
+
+- **Layout-sensitive states** get one cell per size: first run / empty, loading, validation error, success, long strings.
+- **Behavioural states** look the same at every width: server error, network off, interrupted, stale data, long-running. Give them **one** cell, which renders as "any size", tested at the user's primary size.
+
+**Order of work:** every state at the smallest size first (it fails most), then the layout-sensitive states at the other sizes. Write `ok` only for a cell you actually looked at.
 
 ## States to cover for every job
 
@@ -37,14 +61,16 @@ One grid per main job. Rows are states, columns are sizes (web: 360 / 768 / 1440
 
 ```
 Job: Place an order
-State            360        768        1440       1920
-First run/empty  ok         ok         ok         ok
-Loading          UX-004     ok         ok         ok
-Validation err   UX-007     UX-007     UX-007     UX-007
-Server error     UX-002     UX-002     UX-002     UX-002
-Network off      not checked (needs route interception; dev server rejects)  …
-Success          ok         ok         ok         ok
-Long-running     n/a        n/a        n/a        n/a
-Interrupted      UX-011     ok         ok         ok
+State             360            768            1440           1920
+First run/empty   ok:<capture>   ok:<capture>   ok:<capture>   ok:<capture>
+Loading           UX-004         ok:<capture>   ok:<capture>   ok:<capture>
+Validation error  UX-007         ok:<capture>   ok:<capture>   ok:<capture>
+Success           ok:<capture>   ok:<capture>   ok:<capture>   ok:<capture>
+Server error      UX-002                                         (any size)
+Network off       not checked: dev server refuses offline mode   (any size)
+Long-running      n/a: placing an order is instant                (any size)
+Interrupted       UX-011                                         (any size)
 Steps: 6 (min 4). Without docs: partly — needed README to find the account picker.
 ```
+
+In `review.json`, a layout-sensitive row is `"Loading": ["UX-004", "ok:…", "ok:…", "ok:…"]`, and a behavioural row is `"Server error": ["UX-002"]`.
