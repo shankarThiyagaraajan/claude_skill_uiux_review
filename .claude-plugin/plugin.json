@@ -1,0 +1,23 @@
+{
+  "name": "uiux-review",
+  "displayName": "UI/UX Review",
+  "description": "A UI/UX lead review of your running web app, TUI or CLI: real screenshots at every size, automated a11y and layout checks, prioritized findings with evidence, effort and a fix list.",
+  "author": {
+    "name": "Shankar Thiyagaraajan",
+    "url": "https://github.com/shankarThiyagaraajan"
+  },
+  "homepage": "https://github.com/shankarThiyagaraajan/claude_skill_uiux_review",
+  "repository": "https://github.com/shankarThiyagaraajan/claude_skill_uiux_review",
+  "keywords": [
+    "ux",
+    "ui",
+    "design-review",
+    "accessibility",
+    "playwright",
+    "tui",
+    "cli",
+    "usability"
+  ],
+  "skills": "./",
+  "icon": "./assets/icon.png"
+}

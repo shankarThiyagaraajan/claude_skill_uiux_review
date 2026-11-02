@@ -1,0 +1,15 @@
+{
+  "name": "shankar-skills",
+  "description": "Agent skills by Shankar Thiyagaraajan",
+  "owner": {
+    "name": "Shankar Thiyagaraajan",
+    "url": "https://github.com/shankarThiyagaraajan"
+  },
+  "plugins": [
+    {
+      "name": "uiux-review",
+      "source": "./",
+      "description": "UI/UX lead review of a running web app, TUI or CLI, with real captures and prioritized findings"
+    }
+  ]
+}
