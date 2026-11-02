@@ -345,7 +345,7 @@ CELL_GRAMMAR = "ok:<evidence>, UX-###, n/a:<reason> or not checked:<reason>"
 
 def parse_cell(c) -> tuple:
     """-> (kind, payload): ok/evidence ("" = ok: with no evidence), badok/text (starts with "ok" but is not
-    ok:<evidence>), na/reason, nc/reason, ux/[ids], empty, other/text."""
+    ok:<evidence>), na/reason, unchecked/reason, ux/[ids], empty, other/text."""
     s = str(c if c is not None else "").strip()
     if not s:
         return ("empty", "")
@@ -356,7 +356,7 @@ def parse_cell(c) -> tuple:
         return ("badok", s)
     m = re.match(r"(n/a|na|not[ _-]?checked)\b\s*:?\s*(.*)$", s, re.I | re.S)
     if m:
-        kind = "na" if m.group(1).lower() in ("n/a", "na") else "nc"
+        kind = "na" if m.group(1).lower() in ("n/a", "na") else "unchecked"
         return (kind, m.group(2).strip())
     ids = UX_RE.findall(s)
     if ids:
@@ -563,7 +563,7 @@ def validate(review: dict, base: pathlib.Path, prior_ledger=None) -> tuple:
                     for i in val:
                         if i not in known_ids:
                             warnings.append(f"{where}: {i} matches no finding or prior item")
-                elif kind in ("na", "nc") and not val:
+                elif kind in ("na", "unchecked") and not val:
                     errors.append(f"{where}: {json.dumps(str(c).strip(), ensure_ascii=False)} needs a reason — "
                                   f"{'n/a' if kind == 'na' else 'not checked'}:<reason>")
                 elif kind == "empty":
@@ -801,7 +801,7 @@ a.capl{display:block}img.missing,a.missing{outline:2px dashed var(--bad)}
 .lbl{font-size:.75rem;color:var(--muted)}.flag{color:var(--warn)}
 .term{display:grid;grid-template-columns:1fr;gap:14px}.term img.cap,.term img.cap.termcap{max-width:min(100%,1000px)}
 .tw{overflow-x:auto;max-width:100%}table{border-collapse:collapse;width:100%;font-size:.9rem}th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--chip)}
-td.ok{background:var(--ok-bg);color:var(--ok)}td.ok a{color:inherit}td.nc,td.na{color:var(--muted);font-style:italic}td.f a{font-family:ui-monospace,Menlo,monospace;color:var(--accent)}
+td.ok{background:var(--ok-bg);color:var(--ok)}td.ok a{color:inherit}td.unchecked,td.na{color:var(--muted);font-style:italic}td.f a{font-family:ui-monospace,Menlo,monospace;color:var(--accent)}
 td.bad{background:var(--bad-bg);color:var(--bad)}td.warn{background:var(--warn-bg);color:var(--warn)}
 .why{font-size:.8rem}.any{display:inline-block;margin-left:6px;font-size:.7rem;color:var(--muted);font-style:normal;border:1px solid var(--line);border-radius:4px;padding:0 4px}
 pre.tui{background:#0b0d12;color:#dde3ea;padding:10px;border-radius:6px;font:12px/1.25 ui-monospace,Menlo,monospace;overflow:auto;max-height:420px;margin:0}
@@ -1029,9 +1029,9 @@ def render_cell(c, ncols: int, images: Images, base: pathlib.Path, single: bool)
                 + f"{any_note}</td>")
     if kind == "na":
         return f"<td class='na' title='{esc(val)}'{span}>n/a" + (f"<span class='why'> — {esc(val)}</span>" if val else "") + f"{any_note}</td>"
-    if kind == "nc":
-        return f"<td class='nc'{span}>not checked" + (f"<span class='why'> — {esc(val)}</span>" if val else "") + f"{any_note}</td>"
-    return f"<td class='nc'{span}>{esc(c)}{any_note}</td>"
+    if kind == "unchecked":
+        return f"<td class='unchecked'{span}>not checked" + (f"<span class='why'> — {esc(val)}</span>" if val else "") + f"{any_note}</td>"
+    return f"<td class='unchecked'{span}>{esc(c)}{any_note}</td>"
 
 
 def render(review: dict, base: pathlib.Path, images: Images, prior_ledger=None, merged=None) -> str:
@@ -1182,7 +1182,7 @@ def render(review: dict, base: pathlib.Path, images: Images, prior_ledger=None, 
                 single = len(cells) == 1
                 row = f"<tr><td>{esc(state)}</td>" + "".join(render_cell(c, ncols, images, base, single) for c in cells)
                 if not single and len(cells) < len(sizes):
-                    row += "<td class='nc'></td>" * (len(sizes) - len(cells))
+                    row += "<td class='unchecked'></td>" * (len(sizes) - len(cells))
                 A(row + "</tr>")
             A("</table></div>")
         A("</div>")
@@ -1196,7 +1196,7 @@ def render(review: dict, base: pathlib.Path, images: Images, prior_ledger=None, 
     prior = review.get("prior") or []
     if prior:
         A("<div class='tw'><table><tr><th>ID</th><th>Priority</th><th>Title</th><th>Status</th><th>Note</th><th>Evidence</th></tr>")
-        cls_of = {"fixed": "ok", "partly": "warn", "regressed": "bad", "open": "nc", "not-retested": "nc", "wontfix": "na", "obsolete": "na"}
+        cls_of = {"fixed": "ok", "partly": "warn", "regressed": "bad", "open": "unchecked", "not-retested": "unchecked", "wontfix": "na", "obsolete": "na"}
         for p in sorted(prior, key=lambda x: id_sort_key(x.get("id"))):
             it = ledger.get(p.get("id")) or {}
             st = p.get("status")
@@ -1214,8 +1214,8 @@ def render(review: dict, base: pathlib.Path, images: Images, prior_ledger=None, 
         A("<p class='meta'>First review, or no prior findings.json given.</p>")
     A("</section>")
     A("<section id='notchecked'><h2>Not checked</h2>")
-    nc = review.get("not_checked") or []
-    A("<ul>" + "".join(f"<li><b>{esc(n.get('what'))}</b> — {esc(n.get('why', ''))}</li>" if isinstance(n, dict) else f"<li>{esc(n)}</li>" for n in nc) + "</ul>" if nc else "<p class='meta'>Everything in scope was checked.</p>")
+    unchecked = review.get("not_checked") or []
+    A("<ul>" + "".join(f"<li><b>{esc(n.get('what'))}</b> — {esc(n.get('why', ''))}</li>" if isinstance(n, dict) else f"<li>{esc(n)}</li>" for n in unchecked) + "</ul>" if unchecked else "<p class='meta'>Everything in scope was checked.</p>")
     A("</section>")
     A(f"<p class='meta' style='margin-top:40px'>Built from review.json by the uiux-review skill · {esc(review.get('date', ''))}</p></main></body></html>")
     return "".join(out)
@@ -1351,7 +1351,7 @@ def main(argv=None):
     if prior_ledger is None and review.get("prior") and not prior_errors:
         n = len(review["prior"])
         prior_errors.append(f"prior[] has {n} {'entry' if n == 1 else 'entries'} but no prior ledger was loaded — "
-                            "set scope.prior_review to the last findings.json (or pass --prior)")
+                            "set scope.prior_review to the last findings.json (or use --prior)")
     errors, warnings = validate(review, base, prior_ledger)
     errors = prior_errors + norm_errors + [e for e in errors if e not in norm_errors]
     hits, scan_warn = scan_files(raw, rpath, review, base)
@@ -1363,7 +1363,7 @@ def main(argv=None):
     for h in hits:
         print(f"[build_report] sensitive{' (allowed)' if a.allow_sensitive else ''}: {h}", file=sys.stderr)
     if hits and not a.allow_sensitive:
-        print("[build_report] sensitive content found — remove or redact it (or pass --allow-sensitive if it is synthetic)", file=sys.stderr)
+        print("[build_report] sensitive content found — remove or redact it (or use --allow-sensitive if it is synthetic)", file=sys.stderr)
     if errors or (a.strict and warnings) or (hits and not a.allow_sensitive):
         sys.exit(1)
 

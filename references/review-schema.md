@@ -281,7 +281,7 @@ Each hit prints with the file, line and a masked snippet, and the build exits 1.
 
 ## Next review
 
-1. Point `scope.prior_review` at the last `findings.json`, or pass `--prior`.
+1. Point `scope.prior_review` at the last `findings.json`, or use `--prior`.
 2. Re-test every item whose status is `open`, `regressed`, `partly` or `not-retested`.
 3. Give each one an entry in `prior[]` with its new status.
 4. Number new findings from `next_id`. The builder carries everything else forward.

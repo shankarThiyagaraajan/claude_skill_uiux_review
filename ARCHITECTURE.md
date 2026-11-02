@@ -31,7 +31,7 @@ Data flows in one direction within a review. The ledger feeds the next one:
 capture_web.py ──► captures/*.png      + captures/manifest.json
 capture_tui.py ──► captures-tui/*.svg|.txt|.png + captures-tui/manifest.json
 run_cli.py     ──► cli-runs/<probe>.txt + cli-runs/summary.json
-(run_cli.sh execs run_cli.py)
+(run_cli.sh hands off to run_cli.py)
         │
         ▼
 reviewer judgment (SKILL.md + references/*.md) ──► review.json
@@ -62,8 +62,8 @@ key-level contract is in
   - `capture_tui.py`: Textual pilot or pty snapshots, with cut-text counts
     and an environment scrub in pty mode.
   - `run_cli.py`: CLI ergonomics probes with timeouts, a scratch `HOME` and
-    working directory, and an environment scrub. No shell, no `eval`.
-  - `run_cli.sh`: a wrapper that `exec`s `run_cli.py`.
+    working directory, and an environment scrub. No shell and no string evaluation.
+  - `run_cli.sh`: a wrapper that hands off to `run_cli.py`.
   - `annotate.py`: numbered Pillow callouts on a capture.
   - `build_report.py`: validates `review.json`, scans for sensitive content,
     and writes the report, ledger and fixes list.

@@ -556,7 +556,7 @@ def main(argv: list) -> int:
                 flags.append("wrong flag reported nothing on stderr")
         bi = results["bad-input"]
         if bi["exit"] == 0:
-            flags.append("bad input exited 0" + (" (default placeholder args: pass --bad-input for this tool)"
+            flags.append("bad input exited 0" + (" (default placeholder args: set --bad-input for this tool)"
                                                  if bad_default else ""))
         for name, label in (("piped", "ANSI escapes in piped stdout"),
                             ("no-color", "ANSI escapes in piped stdout with NO_COLOR=1"),

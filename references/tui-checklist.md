@@ -16,7 +16,7 @@ These are **counts**. Find the rows yourself in the `.txt` dump.
 - `ellipsis_lines`: how many rows contain `…` or `...`.
 - `wide_widgets` (Textual only): widgets whose content is wider than their box (`why`: `nowrap`, `offscreen` or `scroll`).
 
-Environment variables that look like secrets are removed from pty runs. Their names are listed in `env_dropped`; pass `--keep-env NAME` or `--inherit-env` if the app needs one.
+Environment variables that look like secrets are removed from pty runs. Their names are listed in `env_dropped`; add `--keep-env NAME` or `--inherit-env` if the app needs one.
 
 ## Fit at each size
 

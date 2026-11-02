@@ -347,8 +347,8 @@ def main(argv=None):
     ap.add_argument("--png", action="store_true", help="pty mode: also render the text dump to PNG")
     ap.add_argument("--env", action="append", default=[], help="pty mode: extra env, NAME=value (e.g. NO_COLOR=1)")
     ap.add_argument("--keep-env", action="append", default=[], metavar="NAME",
-                    help="pty mode: pass this secret-looking variable through anyway (repeatable)")
-    ap.add_argument("--inherit-env", action="store_true", help="pty mode: pass the whole environment through unscrubbed")
+                    help="pty mode: keep this secret-looking variable anyway (repeatable)")
+    ap.add_argument("--inherit-env", action="store_true", help="pty mode: keep the whole environment, unscrubbed")
     a = ap.parse_args(argv)
 
     if a.png:

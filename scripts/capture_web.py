@@ -409,7 +409,7 @@ class Capturer:
             if wait == "networkidle":
                 self._idle_fallback.add(url)
                 print(f"[capture_web] {self.clean_url(url)} never went network-idle (polling/websocket?); using 'load' "
-                      f"for the rest of this route — pass --wait load", file=sys.stderr)
+                      f"for the rest of this route — use --wait load", file=sys.stderr)
             else:
                 print(f"[capture_web] '{wait}' timed out for {self.clean_url(url)}; capturing what is there", file=sys.stderr)
             if wait != "load":

@@ -73,7 +73,7 @@ python3 scripts/run_cli.py "<cmd>" --sub "<read-only subcommand>" \
   - `--skip-bare` if the bare command does anything.
   - `--keep-cwd` for tools that act on the current project (git, cargo).
   - `--keep-home` for tools that need their config from `HOME`.
-- **Never pass a `--sub` or `--sample` that writes, sends or spends.** It runs several times.
+- **Never give a `--sub` or `--sample` that writes, sends or spends.** It runs several times.
 - Details are in `references/cli-checklist.md`.
 - Fallback ladder when the Playwright browser won't launch (the workspace network often blocks Chromium downloads): the installed system Chrome via `--channel chrome` or `--executable-path`; then the desktop app's built-in browser (`preview_start` + `resize_window`) when the app runs on the person's machine; then Claude in Chrome. If none works, list the sizes under *Not checked* — don't infer layout from CSS and present it as seen.
 
@@ -195,7 +195,7 @@ If you published an artifact, its card carries the link, so don't repeat it. Oth
 **How to run one.**
 
 1. Read the latest `findings.json` first. It holds every item ever issued, with its full Do and Verify.
-2. Set `scope.prior_review` to it, or pass `--prior`.
+2. Set `scope.prior_review` to it, or use `--prior`.
 3. Re-test every item that is open, regressed, partly or not-retested, and give each a `prior[]` entry with its new status. The builder refuses to run if one is missing.
 4. Number new findings from `next_id`.
 
